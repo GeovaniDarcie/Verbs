@@ -1,4 +1,4 @@
-  const verbos = [
+  let verbos = [
     { infinitivo: 'Find', passadoSimples: 'Found', participioPassado: 'Found', traducao: 'Encontrar' },
     { infinitivo: 'Know', passadoSimples: 'Knew', participioPassado: 'Known', traducao: 'Conhecer' },
     { infinitivo: 'Sell', passadoSimples: 'Sold', participioPassado: 'Sold', traducao: 'Vender' },
@@ -133,6 +133,8 @@ function salvarVerbo(event) {
       document.getElementById('novaTraducao').value = '';
       document.querySelector('.flip-card').classList.remove('flipped');
       document.getElementById('novoPresente').focus();
+
+      console.log(verbos)
     }
   }
 }
@@ -140,6 +142,9 @@ function salvarVerbo(event) {
 function AdicionarVerboLista(novoVerbo) {
   if (novoVerbo.infinitivo && novoVerbo.passadoSimples && novoVerbo.participioPassado && novoVerbo.traducao) {
     verbos.push(novoVerbo);
+    localStorage.removeItem('meuArraySalvo');
+    let arrayJSON = JSON.stringify(verbos);
+    localStorage.setItem('meuArraySalvo', arrayJSON);
     document.getElementById('mensagemSalvo').innerText = `Verbo "${novoVerbo.infinitivo} / ${novoVerbo.passadoSimples}" adicionado!`;
 
     document.getElementById('novoInfinitivo').value = '';
@@ -154,6 +159,9 @@ function AdicionarVerboLista(novoVerbo) {
 
 Inicio();
 function Inicio(){
+  if (localStorage.getItem('meuArraySalvo') != null)
+    verbos = JSON.parse(localStorage.getItem('meuArraySalvo'));
+  
   GerarListaVerbos();
   const card = document.getElementById("card");
   const jogo = document.getElementById("tempo-verbal");
@@ -165,6 +173,7 @@ function Inicio(){
 
 function GerarListaVerbos(){
   const lista = document.getElementById("listaVerbos");
+  lista.innerHTML = '';
 
   verbos.forEach(verbo => {
     const li = document.createElement("li");
