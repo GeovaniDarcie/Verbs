@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verbos - Jogo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header>
+    <nav>
+      <ul>
+        <li id="tab-jogo" class="active" onclick="abrirAba('jogo')">Início</li>
+        <li id="tab-add" onclick="abrirAba('adicionar')">Adicionar Verbos</li>
+        <li id="tab-lista" onclick="abrirAba('lista')">Lista de Verbos</li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="jogo" class="aba ativa">
+      <div class="card" id="card">
+        <div class="card-content">
+          <div style="text-align: right;">
+            <span id="lampada" style="cursor: pointer; font-size: 1.5rem;">💡</span>
+          </div>
+          <h2>Conjugação de Verbos</h2>
+          <p class="verbo-text">Presente:</p>
+          <div class="verbo-card">
+            <span id="verbo">Find</span>
+          </div>
+          <p id="tempo-verbal" class="verbo-text">Passado:</p>
+          <input id="input" autocomplete="off" />
+          <button onclick="Verificar()">Verificar</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="adicionar" class="aba">
+      <div class="flip-card">
+        <div class="flip-inner" id="flip-inner">
+          <div class="flip-front">
+            <input id="novoInfinitivo" title="Aperte Enter para enviar" placeholder="Verbo no presente" onkeydown="verificaFlip(event)">
+            <button onclick="verificaFlip(event)">Adicionar</button>
+          </div>
+          <div class="flip-back">
+            <input id="novoPassado" placeholder="Verbo no passado" onkeydown="verificaFlip(event)">
+            <input id="novoParticipio" placeholder="Particípio" onkeydown="verificaFlip(event)">
+            <input id="novaTraducao" placeholder="Tradução" onkeydown="verificaFlip(event)">
+            <button onclick="salvarVerbo(event)">Adicionar</button>
+          </div>
+        </div>
+      </div>
+      <p id="mensagemSalvo"></p>
+    </section>
+
+    <section id="lista" class="aba lista-section">
+        <h3>Lista de Verbos</h3>
+        <ul id="listaVerbos" class="lista-verbo">
+        </ul>
+      </section>      
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
