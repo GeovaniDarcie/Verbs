@@ -27,18 +27,29 @@
     { infinitivo: 'Blow', passadoSimples: 'Blew', participioPassado: 'Blown', traducao: 'Assoprar' },
     { infinitivo: 'Draw', passadoSimples: 'Drew', participioPassado: 'Drawn', traducao: 'Desenhar' }
   ];
-  
+
+let estatisticas = [{
+  verbo: '',
+  acertos: 0,
+  erros: 0,
+  ajudas: 0
+}]
+
+let graficoPizza = null;
 
 document.getElementById("input").addEventListener("keydown", function(event) {
-if (event.key === "Enter") {
-    event.preventDefault();
-    Verificar();
-}
+  if (event.key === "Enter") {
+      event.preventDefault();
+      Verificar();
+  }
 });
 
 document.getElementById("lampada").addEventListener("click", () => {
   const valor = document.getElementById("verbo").innerText;
   const jogo = document.getElementById("tempo-verbal");
+
+  inserirEstatistica(valor, 'ajuda');
+  inserirGrafico();
 
   let verboEncontradoIndex = verbos.findIndex(v => v.infinitivo.toLowerCase().trim() === valor.toLowerCase().trim());
   let resposta;
@@ -59,7 +70,6 @@ function definirCor(indice){
   const corTraducao = '#fff9c4';
 
   const cores = [corPassado, corParticipioPassado, corTraducao];
-  console.log(cores[indice])
   return cores[indice];
 }
 
@@ -85,6 +95,8 @@ function Verificar() {
 
   if (verboEncontrado) {
     const proximoVerboIndice = Math.floor(Math.random() * verbos.length);
+    inserirEstatistica(verbo.innerText, 'acerto');
+    inserirGrafico();
     verbo.innerHTML = verbos[proximoVerboIndice].infinitivo;
     input.value = "";
     card.classList.add('success');
@@ -94,9 +106,41 @@ function Verificar() {
     jogo.innerHTML = definirJogo(indiceProximoJogo);
   } else {
     card.classList.add('error');
+    inserirEstatistica(verbo.innerText, 'erro');
+    inserirGrafico();
     setTimeout(() => card.classList.remove('error'), 800);
     input.value = "";
   }
+}
+
+function inserirEstatistica(valor, acao) {
+  let indexEstatisticas = estatisticas.findIndex(e => e.verbo == valor);
+  if (indexEstatisticas != -1){
+    if (acao == 'acerto' && estatisticas[indexEstatisticas].acertos > 0)
+      estatisticas[indexEstatisticas].acertos++;
+    else if (acao == 'acerto')
+      estatisticas[indexEstatisticas].acertos = 1;
+
+    if (acao == 'erro' && estatisticas[indexEstatisticas].erros > 0)
+      estatisticas[indexEstatisticas].erros++;
+    else if (acao == 'erro')
+      estatisticas[indexEstatisticas].erros = 1;
+
+    if (acao == 'ajuda' && estatisticas[indexEstatisticas].ajudas > 0)
+      estatisticas[indexEstatisticas].ajudas++;
+    else if (acao == 'ajuda')
+      estatisticas[indexEstatisticas].ajudas = 1;
+  } else {
+    if (acao == 'acerto')
+      estatisticas.push({ verbo: valor, acertos: 1, erros: 0, ajudas: 0 });
+
+    if (acao == 'erro')
+      estatisticas.push({ verbo: valor, erros: 1, acertos: 0, ajudas: 0 });
+
+    if (acao == 'ajuda')
+      estatisticas.push({ verbo: valor, ajudas: 1, acertos: 0, erros: 0 });
+  }
+
 }
 
 function abrirAba(nome) {
@@ -105,6 +149,9 @@ function abrirAba(nome) {
 
   document.querySelectorAll('nav ul li').forEach(el => el.classList.remove('active'));
   document.getElementById(`tab-${nome}`).classList.add('active');
+
+  if (nome == 'estatistica')
+    GerarListaVerbosEstatisticas(3);
 }
 
 function verificaFlip(event) {
@@ -161,7 +208,11 @@ Inicio();
 function Inicio(){
   if (localStorage.getItem('meuArraySalvo') != null)
     verbos = JSON.parse(localStorage.getItem('meuArraySalvo'));
+
+  if (localStorage.getItem('estatisticas') != null)
+    estatisticas = JSON.parse(localStorage.getItem('estatisticas'));
   
+  inserirGrafico();
   GerarListaVerbos();
   const card = document.getElementById("card");
   const jogo = document.getElementById("tempo-verbal");
@@ -208,4 +259,141 @@ function GerarListaVerbos(){
     lista.appendChild(li);
   });
 }
+
+function inserirGrafico() {
+  const ctx = document.getElementById('graficoPizza').getContext('2d');
+
+  localStorage.removeItem('estatisticas');
+  let indexVerboVazio = estatisticas.findIndex(e => e.verbo == '');
+  if (indexVerboVazio != -1)
+    estatisticas.splice(indexVerboVazio, 1);
+  let arrayJSON = JSON.stringify(estatisticas);
+  localStorage.setItem('estatisticas', arrayJSON);
+
+  let total = estatisticas.reduce((soma, e) => {
+    return soma + e.acertos + e.erros + e.ajudas;
+  }, 0);
+  let totalAjuda = estatisticas.reduce((soma, e) => soma + e.ajudas, 0);
+  let totalErros = estatisticas.reduce((soma, e) => soma + e.erros, 0);
+  let totalAcertos = estatisticas.reduce((soma, e) => soma + e.acertos, 0);
+
+  const porcentagens = {
+    amarelo: (totalAjuda / total) * 100,
+    vermelho: (totalErros / total) * 100,
+    verde: (totalAcertos / total) * 100
+  };
+
+  const dados = {
+    labels: ['Ajudas', 'Erros', 'Acertos'],
+    datasets: [{
+      data: [porcentagens.amarelo, porcentagens.vermelho, porcentagens.verde], 
+      backgroundColor: ['#ffef5e', '#fc5b6b', '#63ff69'],
+      borderWidth: 1
+    }]
+  };
+
+  if (graficoPizza) {
+    graficoPizza.destroy();
+  }
+
+  graficoPizza = new Chart(ctx, {
+    type: 'pie',
+    data: dados,
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      },
+      onClick: (evt, elements) => {
+        if (elements.length > 0) {
+          const index = elements[0].index;
+          const label = dados.labels[index];
+          const valor = dados.datasets[0].data[index];
+          GerarListaVerbosEstatisticas(index)
+        }
+      }
+    }
+  });
+}
+
+function GerarListaVerbosEstatisticas(index) {
+  const lista = document.getElementById("listaVerbosEstatisticas");
+  lista.innerHTML = '';
+
+  let verbosFiltrados = [];
+  let displayValue = {
+    acerto: '',
+    erro: '',
+    ajuda: ''
+  }
+
+  if (index === 0) {
+    verbosFiltrados = estatisticas.filter(e => e.ajudas > 0);
+    displayValue.acerto = 'none'
+    displayValue.erro = 'none';
+    displayValue.ajuda = '';
+  } else if (index === 1) {
+    verbosFiltrados = estatisticas.filter(e => e.erros > 0);
+    displayValue.acerto = 'none'
+    displayValue.erro = '';
+    displayValue.ajuda = 'none';
+  } else if (index === 2) {
+    displayValue.acerto = ''
+    displayValue.erro = 'none';
+    displayValue.ajuda = 'none';
+    verbosFiltrados = estatisticas.filter(e => e.acertos > 0);
+  } else if (index == 3){
+    verbosFiltrados = estatisticas;
+  }
+
+  verbosFiltrados.forEach(est => {
+    const verbo = verbos.find(v => v.infinitivo === est.verbo);
+    if (!verbo) return; 
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong id="listaVerbosEstatisticas ">${verbo.infinitivo}</strong>
+       <span class="estatisticas">
+        <span style="display: ${displayValue.acerto}" class="acertos">✔️ ${est.acertos}</span>
+        <span style="display: ${displayValue.erro}" class="erros">❌ ${est.erros}</span>
+        <span style="display: ${displayValue.ajuda}" class="ajudas">💡 ${est.ajudas}</span>
+      </span>
+    `;
+    li.style.cursor = 'pointer';
+
+    li.addEventListener("click", () => {
+      let esta = li.querySelector("span");
+      if (li.querySelector("ul")) {
+        li.removeChild(li.querySelector("ul")); 
+        esta.style.display = '';
+        return;
+      }
+
+      esta.style.display = 'none';
+
+      const subLista = document.createElement("ul");
+      subLista.style.marginTop = "5px";
+
+      const passado = document.createElement("li");
+      passado.textContent = `Passado: ${verbo.passadoSimples}`;
+
+      const participio = document.createElement("li");
+      participio.textContent = `Particípio: ${verbo.participioPassado}`;
+
+      const traducao = document.createElement("li");
+      traducao.textContent = `Tradução: ${verbo.traducao}`;
+
+      subLista.appendChild(passado);
+      subLista.appendChild(participio);
+      subLista.appendChild(traducao);
+
+      li.appendChild(subLista);
+    });
+
+    lista.appendChild(li);
+  });
+}
+
 

@@ -234,3 +234,49 @@ button:hover {
   background-color: #b2ebf2;
 }
 
+.box {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 5px;
+}
+
+#acertosLista li {
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.3s;
+}
+
+#acertosLista li:hover {
+  background-color: #f9f9f9;
+}
+
+#listaVerbosEstatisticas li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.estatisticas {
+  display: flex;
+  gap: 8px;
+  font-size: 0.9em;
+}
+
+.acertos {
+  background-color: #c8e6c9;
+  color: #256029;
+}
+
+.erros {
+  background-color: #ffcdd2;
+  color: #b71c1c;
+}
+
+.ajudas {
+  background-color: #fff9c4;
+  color: #827717;
+}
