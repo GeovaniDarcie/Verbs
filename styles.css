@@ -20,8 +20,8 @@ nav ul {
   display: flex;
   list-style: none;
   justify-content: center;
-  gap: 30px;
 }
+
 
 nav ul li {
   color: white;
@@ -31,6 +31,7 @@ nav ul li {
   border-radius: 8px;
   transition: 0.3s;
 }
+
 
 nav ul li.active,
 nav ul li:hover {

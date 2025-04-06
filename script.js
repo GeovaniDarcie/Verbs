@@ -36,6 +36,7 @@ let estatisticas = [{
 }]
 
 let graficoPizza = null;
+let verbosPratica = [];
 
 document.getElementById("input").addEventListener("keydown", function(event) {
   if (event.key === "Enter") {
@@ -217,6 +218,10 @@ function Inicio(){
   const card = document.getElementById("card");
   const jogo = document.getElementById("tempo-verbal");
 
+  const verbo = document.getElementById("verbo");
+  const proximoVerboIndice = Math.floor(Math.random() * verbos.length);
+  verbo.innerHTML = verbos[proximoVerboIndice].infinitivo;
+
   const indiceProximoJogo = Math.floor(Math.random() * 3);
   card.style.backgroundColor = definirCor(indiceProximoJogo);
   jogo.innerHTML = definirJogo(indiceProximoJogo);
@@ -348,8 +353,11 @@ function GerarListaVerbosEstatisticas(index) {
     verbosFiltrados = estatisticas;
   }
 
+  verbosPratica = [];
+
   verbosFiltrados.forEach(est => {
     const verbo = verbos.find(v => v.infinitivo === est.verbo);
+    verbosPratica.push(verbo);
     if (!verbo) return; 
 
     const li = document.createElement("li");
@@ -394,6 +402,40 @@ function GerarListaVerbosEstatisticas(index) {
 
     lista.appendChild(li);
   });
+}
+
+function praticar(){
+  if (verbosPratica.length > 0){
+    const verbo = document.getElementById("verbo");
+    verbo.innerHTML = verbosPratica[0].infinitivo;
+  }
+  const card = document.getElementById("card");
+  const adicionar = document.getElementById("tab-add");
+  const lista = document.getElementById("tab-lista");
+  const estatistica = document.getElementById("tab-estatistica");
+  const jogo = document.getElementById("tab-jogo");
+  const header = document.querySelector("header");
+
+  document.body.style.backgroundImage = "url('fundo.png')";
+  document.body.style.backgroundSize = "cover";
+  document.body.style.backgroundPosition = "center";
+  document.body.style.backgroundRepeat = "no-repeat";
+  document.body.style.backgroundAttachment = "fixed";
+
+  const botao = document.createElement("button");
+  botao.innerText = "Sair🔥👁️";
+  botao.onclick = function () {
+    location.reload();
+  };
+  card.appendChild(botao);
+
+  abrirAba('jogo');
+  jogo.style.backgroundColor = '#a60707';
+  header.style.backgroundColor = '#8f2828';
+  header.style.backgroundImage = "url('fundo.png')";
+  adicionar.style.display = 'none';
+  lista.style.display = 'none';
+  estatistica.style.display = 'none';
 }
 
 
