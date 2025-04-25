@@ -45,10 +45,18 @@ document.getElementById("input").addEventListener("keydown", function(event) {
   }
 });
 
-document.getElementById("lampada").addEventListener("click", () => {
+document.getElementById("lampada").addEventListener("click", (e) => {
   const valor = document.getElementById("verbo").innerText;
   const jogo = document.getElementById("tempo-verbal");
 
+  if (e.currentTarget.style.opacity == 1){
+    e.currentTarget.style.opacity = 0.3;
+    document.getElementById("input").value = "";
+    return;
+  } else {
+    e.currentTarget.style.opacity = 1;
+  }
+  
   inserirEstatistica(valor, 'ajuda');
   inserirGrafico();
 
@@ -63,6 +71,32 @@ document.getElementById("lampada").addEventListener("click", () => {
     resposta = verbos[verboEncontradoIndex].traducao;
 
   document.getElementById("input").value = resposta;
+});
+
+document.getElementById("autofalante").addEventListener("click", async () => {
+  const word = document.getElementById("verbo").innerText.toLowerCase();
+  const url = ` http://localhost:3000/api/audio?word=${word}`;
+  const audioDiv = document.getElementById('autofalante');
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data != null) {
+      const audioUrl = data.audioUrl;
+      const audio = new Audio(audioUrl);
+      audio.play();
+      audioDiv.innerHTML = `
+        <span>🔊</span>`;
+        
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      audioDiv.innerHTML = `
+      <span>🔈</span>`;
+    } else {
+      audioDiv.innerHTML = `<span>❌</span>`;;
+    }
+  } catch (error) {
+    audioDiv.innerHTML = '<span>❌</span>';
+    console.error(error);
+  }
 });
 
 function definirCor(indice){
@@ -335,12 +369,12 @@ function GerarListaVerbosEstatisticas(index) {
   }
 
   if (index === 0) {
-    verbosFiltrados = estatisticas.filter(e => e.ajudas > 0);
+    verbosFiltrados = estatisticas.filter(e => e.ajudas > 0).sort((a, b) => b.ajudas - a.ajudas);
     displayValue.acerto = 'none'
     displayValue.erro = 'none';
     displayValue.ajuda = '';
   } else if (index === 1) {
-    verbosFiltrados = estatisticas.filter(e => e.erros > 0);
+    verbosFiltrados = estatisticas.filter(e => e.erros > 0).sort((a, b) => b.erros - a.erros);
     displayValue.acerto = 'none'
     displayValue.erro = '';
     displayValue.ajuda = 'none';
@@ -348,9 +382,9 @@ function GerarListaVerbosEstatisticas(index) {
     displayValue.acerto = ''
     displayValue.erro = 'none';
     displayValue.ajuda = 'none';
-    verbosFiltrados = estatisticas.filter(e => e.acertos > 0);
+    verbosFiltrados = estatisticas.filter(e => e.acertos > 0).sort((a, b) => b.acertos - a.acertos);
   } else if (index == 3){
-    verbosFiltrados = estatisticas;
+    verbosFiltrados = estatisticas.sort((a, b) => b.acertos - a.acertos);;
   }
 
   verbosPratica = [];
