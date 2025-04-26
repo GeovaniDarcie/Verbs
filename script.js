@@ -78,18 +78,19 @@ document.getElementById("autofalante").addEventListener("click", async () => {
   const url = `https://wordnik-api.vercel.app/api/audio?word=${word}`;
   const audioDiv = document.getElementById('autofalante');
   try {
-    const response = await fetch(url, { mode: 'no-cors'});
+    const response = await fetch(url);
     const data = await response.json();
     if (data != null) {
       const audioUrl = data.audioUrl;
-      const audio = new Audio(audioUrl);
-      audio.play();
-      audioDiv.innerHTML = `
-        <span>🔊</span>`;
-        
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      audioDiv.innerHTML = `
-      <span>🔈</span>`;
+      if (audioUrl != undefined){
+        const audio = new Audio(audioUrl);
+        audio.play();
+        audioDiv.innerHTML = `
+          <span>🔊</span>`;
+          
+      } else{
+        audioDiv.innerHTML = `<span>❌</span>`;;
+      }
     } else {
       audioDiv.innerHTML = `<span>❌</span>`;;
     }
@@ -97,6 +98,9 @@ document.getElementById("autofalante").addEventListener("click", async () => {
     audioDiv.innerHTML = '<span>❌</span>';
     console.error(error);
   }
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  audioDiv.innerHTML = `
+  <span>🔈</span>`;
 });
 
 function definirCor(indice){
@@ -114,6 +118,7 @@ function definirJogo(indice){
 }
   
 function Verificar() {
+  const lampada = document.getElementById("lampada");
   const verbo = document.getElementById("verbo");
   const input = document.getElementById("input");
   const card = document.getElementById("card");
@@ -139,6 +144,7 @@ function Verificar() {
     const indiceProximoJogo = Math.floor(Math.random() * 3);
     card.style.backgroundColor = definirCor(indiceProximoJogo);
     jogo.innerHTML = definirJogo(indiceProximoJogo);
+    lampada.style.opacity = 0.3;
   } else {
     card.classList.add('error');
     inserirEstatistica(verbo.innerText, 'erro');

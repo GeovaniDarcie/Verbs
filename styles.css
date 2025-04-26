@@ -127,11 +127,11 @@ button:hover {
 }
 
 .card.success {
-  background-color: #c8e6c9;
+  background-color: #c8e6c9  !important;
 }
 
 .card.error {
-  background-color: #ffcdd2;
+  background-color: #ffcdd2 !important;
   animation: shake 0.5s;
 }
 
