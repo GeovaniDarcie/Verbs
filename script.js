@@ -75,7 +75,7 @@ document.getElementById("lampada").addEventListener("click", (e) => {
 
 document.getElementById("autofalante").addEventListener("click", async () => {
   const word = document.getElementById("verbo").innerText.toLowerCase();
-  const url = `https://https://wordnik-api.vercel.app/api/audio?word=${word}`;
+  const url = `https://wordnik-api.vercel.app/api/audio?word=${word}`;
   const audioDiv = document.getElementById('autofalante');
   try {
     const response = await fetch(url, { mode: 'no-cors'});
