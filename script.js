@@ -75,10 +75,10 @@ document.getElementById("lampada").addEventListener("click", (e) => {
 
 document.getElementById("autofalante").addEventListener("click", async () => {
   const word = document.getElementById("verbo").innerText.toLowerCase();
-  const url = `https://wordnik-5ojpa3vap-geovani-darcies-projects.vercel.app/api/audio?word=${word}`;
+  const url = `https://https://wordnik-api.vercel.app/api/audio?word=${word}`;
   const audioDiv = document.getElementById('autofalante');
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { mode: 'no-cors'});
     const data = await response.json();
     if (data != null) {
       const audioUrl = data.audioUrl;
