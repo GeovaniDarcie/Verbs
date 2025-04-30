@@ -49,7 +49,7 @@ document.getElementById("lampada").addEventListener("click", (e) => {
   const valor = document.getElementById("verbo").innerText;
   const jogo = document.getElementById("tempo-verbal");
 
-  if (e.currentTarget.style.opacity == 1){
+  if (e.currentTarget.style.opacity == 1 && document.getElementById("input").value != ""){
     e.currentTarget.style.opacity = 0.3;
     document.getElementById("input").value = "";
     return;
@@ -75,8 +75,12 @@ document.getElementById("lampada").addEventListener("click", (e) => {
 
 document.getElementById("autofalante").addEventListener("click", async () => {
   const word = document.getElementById("verbo").innerText.toLowerCase();
+  await reproduzirAudio(word, 'autofalante');
+});
+
+async function reproduzirAudio(word, tipoAutoFalante){
   const url = `https://wordnik-api.vercel.app/api/audio?word=${word}`;
-  const audioDiv = document.getElementById('autofalante');
+  const audioDiv = document.getElementById(tipoAutoFalante);
   try {
     const response = await fetch(url);
     const data = await response.json();
@@ -89,7 +93,7 @@ document.getElementById("autofalante").addEventListener("click", async () => {
           <span>🔊</span>`;
           
       } else{
-        audioDiv.innerHTML = `<span>❌</span>`;;
+        audioDiv.innerHTML = `<span>❌</span>`;
       }
     } else {
       audioDiv.innerHTML = `<span>❌</span>`;;
@@ -98,10 +102,19 @@ document.getElementById("autofalante").addEventListener("click", async () => {
     audioDiv.innerHTML = '<span>❌</span>';
     console.error(error);
   }
+  if (tipoAutoFalante.includes('Resposta')){
+    audioDiv.style.opacity = 1;
+    audioDiv.style.cursor = 'pointer';
+  }
   await new Promise(resolve => setTimeout(resolve, 2000));
+  if (tipoAutoFalante.includes('Resposta')){
+    audioDiv.style.opacity = 0.3;
+    audioDiv.style.cursor = 'default';
+  }
+ 
   audioDiv.innerHTML = `
   <span>🔈</span>`;
-});
+}
 
 function definirCor(indice){
   const corPassado = '#e0f7fa';
@@ -112,12 +125,13 @@ function definirCor(indice){
   return cores[indice];
 }
 
+
 function definirJogo(indice){
   const jogo = ['Passado:', 'Particípio Passado:', 'Tradução:'];
   return jogo[indice];
 }
   
-function Verificar() {
+async function Verificar() {
   const lampada = document.getElementById("lampada");
   const verbo = document.getElementById("verbo");
   const input = document.getElementById("input");
@@ -137,6 +151,8 @@ function Verificar() {
     const proximoVerboIndice = Math.floor(Math.random() * verbos.length);
     inserirEstatistica(verbo.innerText, 'acerto');
     inserirGrafico();
+    if (jogo.innerText != 'Tradução:')
+      await reproduzirAudio(valor, 'autofalanteResposta');
     verbo.innerHTML = verbos[proximoVerboIndice].infinitivo;
     input.value = "";
     card.classList.add('success');
@@ -144,7 +160,6 @@ function Verificar() {
     const indiceProximoJogo = Math.floor(Math.random() * 3);
     card.style.backgroundColor = definirCor(indiceProximoJogo);
     jogo.innerHTML = definirJogo(indiceProximoJogo);
-    lampada.style.opacity = 0.3;
   } else {
     card.classList.add('error');
     inserirEstatistica(verbo.innerText, 'erro');
